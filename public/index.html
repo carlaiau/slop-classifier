@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Read with JEV · Typicality research</title><link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script></head>
+<body>
+  <a class="skip" href="#main">Skip to reading</a>
+  <header><a class="wordmark" href="/">Read with <strong>JEV</strong></a><span class="project-name">Typicality research</span><span id="mode" class="mode">Loading research configuration…</span><nav class="mobile-tools"><button id="open-config">Settings</button><button id="open-map">Text map</button></nav></header>
+  <div class="workspace">
+    <aside id="settings" class="settings" aria-label="Reading settings">
+      <div class="aside-heading"><h2>Reading lens</h2><button id="new-text" class="text-button" hidden>New text</button></div>
+      <p class="intro-note">Inspect the writing.<br>Keep the uncertainty in view.</p>
+      <label class="control-label" for="threshold">Highlight threshold</label>
+      <div class="range-ends"><span>More highlights</span><span>Fewer</span></div>
+      <input id="threshold" type="range" min="0" max="1" step="0.01" value="0.65" disabled>
+      <div class="range-readout"><output id="threshold-value" for="threshold">0.65</output><button id="reset" class="text-button">Reset</button></div>
+      <p id="threshold-note" class="small">Illustrative setting. No validated default yet.</p>
+      <hr>
+      <h3>How to read this</h3>
+      <p class="small">A tint marks a model signal, not proof of authorship. Unhighlighted text is not verified human.</p>
+      <p class="small">Hover or focus a sentence to inspect its status. Moving the threshold reuses existing scores.</p>
+      <dl class="legend"><div><dt><i class="swatch marked"></i>Above threshold</dt><dd>Inspect in context</dd></div><div><dt><i class="swatch unscored"></i>Not analyzed</dt><dd>Scroll to read</dd></div><div><dt><i class="swatch insufficient"></i>Insufficient information</dt><dd>Too little text</dd></div></dl>
+      <div class="research-note"><h3>Research status</h3><p id="research-status" class="small">Software prototype. Detection and reader-study results are pending.</p><button id="export" class="text-button" hidden>Export session timings</button></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <section id="ingest" class="ingest">
+        <h1>A closer reading.</h1>
+        <p class="lead">Paste a passage and explore it sentence by sentence. Analysis follows what you read.</p>
+        <label for="paste">Your text</label>
+        <textarea id="paste" maxlength="50000" placeholder="Paste an article, essay, or passage here…" spellcheck="false"></textarea>
+        <div class="paste-footer"><span id="character-count">0 / 50,000 characters</span><button id="sample" class="text-button">Try a sample passage</button></div>
+        <p id="privacy" class="small">In simulated mode, text stays in this local app and no model is called. Clear or close the session to discard it. Nothing is saved to browser storage.</p>
+        <div class="start-row"><button id="prepare" class="primary">Prepare reading</button><span id="estimate" class="small"></span></div>
+        <button id="begin" class="primary" hidden>Start reading</button>
+        <p id="ingest-error" role="alert" class="error"></p>
+        <div class="ingest-caption"><span>Sentence by sentence</span><span>On demand</span><span>Without a verdict</span></div>
+      </section>
+      <section id="reading" hidden>
+        <div class="reading-heading"><div><h1>Your passage</h1><p id="reading-meta" class="small"></p></div><button id="pause">Pause analysis</button></div>
+        <p id="reading-banner" class="reading-banner">Simulated scores for exploring the interface. They say nothing about this text’s authorship.</p>
+        <article id="text" aria-label="Pasted text"></article>
+        <div class="end-note">End of passage. A reading signal is a starting point for inspection, not a conclusion.</div>
+      </section>
+    </main>
+    <aside id="map-panel" class="map-panel" aria-label="Text navigation and sentence details">
+      <h2>Text map</h2><p class="small">Each mark is a sentence.</p>
+      <div id="map-empty" class="map-empty">Your passage will appear here.</div>
+      <div id="map" class="map" role="group" aria-label="Navigate sentences"></div>
+      <p id="progress" class="small" aria-live="polite"></p>
+      <section id="details" class="details" aria-live="polite"><h3>Sentence detail</h3><p id="detail-text" class="small">Focus a sentence to inspect its status.</p></section>
+      <p id="analysis-error" role="alert" class="error"></p><button id="retry" hidden>Retry visible sentences</button>
+    </aside>
+  </div>
+  <section id="mobile-detail" class="mobile-detail" hidden aria-label="Selected sentence detail"><div><strong>Sentence detail</strong><button id="hide-detail" class="text-button">Hide</button></div><p id="mobile-detail-text" role="status"></p></section>
+  <dialog id="drawer" aria-labelledby="drawer-title"><div class="drawer-top"><span id="drawer-title"></span><button id="close-drawer">Close</button></div><div id="drawer-content"></div></dialog>
+</body></html>

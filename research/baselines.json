@@ -1,0 +1,10 @@
+{
+  "codeRevision": "739d647bab87c7d3c7a86d3df6c008945af5c4a2",
+  "local": ["prior", "tfidf"],
+  "external": [
+    { "id": "genai-sentence", "context": "target sentence", "rawScore": "AI token coverage ratio, not calibrated probability", "status": "checkpoint-validation-required", "blocker": "Pinned upstream adapter drops LoRA tensors and permits missing state-dict keys. Verify and correct checkpoint loading before treating this as a valid baseline; record the patch digest." },
+    { "id": "gemini-flash-direct-low", "context": "target sentence", "config": "opai_bench_detectors/configs/gemini.yaml", "status": "external-provider-run-required", "note": "Resolve exact model ID, freeze prompt/configuration, disable opaque retries and reconcile API spending with the shared research budget before execution." },
+    { "id": "fast-detectgpt-sentence", "context": "target sentence", "status": "weights-and-runtime-required", "note": "This is an experimental sentence-input adaptation. Native document results belong in a separate report, not the sentence leaderboard." }
+  ],
+  "comparisonRule": "Match exact example IDs, source grouping, label version and splits. Report hardware, training exposure, weights/configuration hashes and context access. Missing baselines stay unavailable, never zero or presumed beaten."
+}

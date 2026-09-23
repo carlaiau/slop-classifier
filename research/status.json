@@ -1,0 +1,15 @@
+{
+  "status": "software-implemented-empirical-study-pending",
+  "paidInferencePerformed": false,
+  "participantsRecruited": 0,
+  "technicalGates": "not-evaluated",
+  "realDataAudit": { "scope": "one pinned dev/news/gpt-5.4-nano shard", "alignedSentenceExamples": 63342, "quarantinedSourceShards": 1, "reason": "Gold sentence fails exact source alignment", "fullCorpusAudit": "pending" },
+  "remainingEvidence": [
+    "Complete pinned-shard ingestion, original-source provenance review and cross-partition audit",
+    "Authorized capped JEV development, calibration and held-out inference",
+    "External detector weights/checkpoint audit and matched baseline runs",
+    "100 independent provenance-backed human texts and frozen generated counterparts",
+    "Real end-to-end runtime grid, locked operating point and technical gate report",
+    "12-person counterbalanced reader study after technical gates pass"
+  ]
+}

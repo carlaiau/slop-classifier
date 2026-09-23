@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-23T10:05:17.990529+00:00",
+  "title": "Design System: Read with JEV",
+  "extensions": {
+    "shadows": [],
+    "motion": [
+      {
+        "name": "inspection-state",
+        "value": "background-color 140ms ease-out",
+        "purpose": "Sentence and map state changes, only with prefers-reduced-motion: no-preference."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact-desktop",
+        "value": "1100px"
+      },
+      {
+        "name": "mobile",
+        "value": "800px"
+      },
+      {
+        "name": "outer-workspace-rules",
+        "value": "1700px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action from the reader.",
+      "html": "<button class=\"ds-primary\">Prepare reading</button>",
+      "css": ".ds-primary{font:15px/1.6 var(--sans);border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:var(--ink);color:var(--panel);border-color:var(--ink);padding:11px 20px;}.ds-primary:hover{background:#3c4b59;}.ds-primary:focus-visible{outline:2px solid #536a85;outline-offset:4px}.ds-primary:disabled{opacity:.55;cursor:not-allowed;}"
+    },
+    {
+      "name": "Secondary action",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action from the reader.",
+      "html": "<button class=\"ds-secondary\">Pause analysis</button>",
+      "css": ".ds-secondary{font:15px/1.6 var(--sans);border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:transparent;color:var(--ink);padding:.5rem .8rem;}.ds-secondary:hover{background:#e5e1db;}.ds-secondary:focus-visible{outline:2px solid #536a85;outline-offset:4px}.ds-secondary:disabled{opacity:.55;cursor:not-allowed;}"
+    },
+    {
+      "name": "Text action",
+      "kind": "button",
+      "refersTo": "button-text",
+      "description": "Text action from the reader.",
+      "html": "<button class=\"ds-text\">Reset</button>",
+      "css": ".ds-text{font:15px/1.6 var(--sans);border:1px solid var(--rule);border-radius:4px;cursor:pointer;background:transparent;color:var(--ink);border:0;padding:2px 0;text-decoration:underline;text-underline-offset:4px;font-size:12px;border-radius:0;}.ds-text:hover{color:var(--accent);background:transparent;}.ds-text:focus-visible{outline:2px solid #536a85;outline-offset:4px}.ds-text:disabled{opacity:.55;cursor:not-allowed;}"
+    },
+    {
+      "name": "Paste field",
+      "kind": "input",
+      "refersTo": "paste-field",
+      "description": "Serif text entry on a pale surface.",
+      "html": "<label class=\"ds-label\" for=\"ds-paste\">Your text</label><textarea id=\"ds-paste\" class=\"ds-paste\" placeholder=\"Paste an article, essay, or passage here\u2026\"></textarea>",
+      "css": ".ds-label{display:block;font:600 13px var(--sans);margin-bottom:9px}.ds-paste{width:100%;min-height:280px;max-height:560px;resize:vertical;border:1px solid #b8b2a9;border-radius:5px;background:var(--panel);color:var(--ink);padding:22px;font:17px/1.7 var(--serif);caret-color:var(--accent)}.ds-paste::placeholder{color:var(--muted)}.ds-paste:focus-visible{outline:2px solid #536a85;outline-offset:4px}"
+    },
+    {
+      "name": "Sentence map navigation",
+      "kind": "nav",
+      "description": "Mobile map targets retain a 32px height.",
+      "html": "<nav class=\"ds-map\" aria-label=\"Navigate sentences\"><button aria-label=\"Sentence 1: scored, above threshold\"></button><button aria-label=\"Sentence 2: unscored\"></button></nav>",
+      "css": ".ds-map{display:flex;flex-direction:column;gap:3px}.ds-map button{width:100%;height:32px;min-height:32px;padding:0;border:1px solid #bdb7ae;border-radius:1px;background:var(--panel)}.ds-map button:first-child{background:#c58b6c}.ds-map button:hover{border-color:var(--ink)}.ds-map button:focus-visible{outline:2px solid #536a85;outline-offset:4px}"
+    },
+    {
+      "name": "Mobile sentence detail",
+      "kind": "custom",
+      "description": "Named detail region with a status announcement; placed above the reading surface on mobile.",
+      "html": "<section class=\"ds-detail\" aria-label=\"Selected sentence detail\"><div><strong>Sentence detail</strong><button>Hide</button></div><p role=\"status\">Sentence 1. Not analyzed. Reading nearby will schedule analysis.</p></section>",
+      "css": ".ds-detail{background:var(--panel);color:var(--ink);border:1px solid #b8b2a9;border-radius:5px;padding:14px 16px;max-height:30vh;overflow:auto;font:12px/1.55 var(--sans)}.ds-detail>div{display:flex;align-items:center;justify-content:space-between;gap:16px}.ds-detail p{margin:6px 0 0}.ds-detail button{border:0;background:transparent;color:inherit;padding:2px 0;text-decoration:underline;text-underline-offset:4px;font:12px var(--sans)}.ds-detail button:hover{color:var(--accent)}.ds-detail button:focus-visible{outline:2px solid #536a85;outline-offset:4px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The reading instrument",
+    "overview": "This independent local prototype inherits the approved warm paper, serif reading column, quiet controls, sentence highlights, and whole-text navigation of `../read-with-jev`, without copying its licensed component kit. Preserve that visual world. This is a record of the implementation, not a new visual direction or a separate design comp.\n\nThe text leads; controls support inspection and keep uncertainty visible. Original passage text remains unchanged, and signals are described without an authorship verdict.",
+    "keyCharacteristics": [
+      "Warm paper and restrained rust accents.",
+      "Spacious serif reading with compact sans-serif controls.",
+      "Flat surfaces, quiet rules, and explicit analysis states."
+    ],
+    "rules": [
+      {
+        "name": "The Context Rule",
+        "body": "A highlight invites inspection in context. Neither a tint nor its absence is an authorship verdict.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** preserve warm paper, Georgia reading text, compact Arial controls, and thin rules.",
+      "**Do** keep the passage dominant and inspection details available by keyboard and touch.",
+      "**Do** retain 32px mobile map targets and the named modal drawers.",
+      "**Do** distinguish unscored text from scored text below threshold."
+    ],
+    "donts": [
+      "**Don't** treat synthetic highlights as evidence of detection quality.",
+      "**Don't** replace the inherited visual world during a scoped fix.",
+      "**Don't** introduce shadows, decorative cards, or unnecessary motion into this reading surface."
+    ]
+  }
+}

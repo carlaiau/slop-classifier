@@ -1,0 +1,2 @@
+# Optional report rendering only; the research harness does not require Python ML libraries.
+matplotlib==3.10.6
