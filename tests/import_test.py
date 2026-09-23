@@ -19,5 +19,13 @@ class ImportTest(unittest.TestCase):
         with self.assertRaises(ValueError): module.convert([row], 'pinned-source')
     def test_no_eval(self):
         with self.assertRaises((ValueError, SyntaxError)): module.parse_list('__import__("os").getcwd()')
+    def test_whitespace_mapping_preserves_source_and_rejects_changed_words(self):
+        row = self.row(); row['text'] = row['text'].replace('crossed the', 'crossed\n the')
+        units = module.convert([row], 'pinned-source')
+        self.assertTrue(units[0]['whitespaceMapped'])
+        self.assertIn('\n', units[0]['text'])
+        self.assertEqual(''.join(r['gapBefore'] + r['text'] + r['trailing'] for r in units), row['text'])
+        row['text'] = row['text'].replace('crossed', 'approached')
+        with self.assertRaises(ValueError): module.convert([row], 'pinned-source')
 
 if __name__ == '__main__': unittest.main()

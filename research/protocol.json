@@ -7,18 +7,95 @@
     "repo": "OpAI-Bench1/OpAI-Bench",
     "revision": "4fb59011bcab8c62863b7083fe0f0a3345555558",
     "codeRevision": "739d647bab87c7d3c7a86d3df6c008945af5c4a2",
-    "domains": ["abstracts", "essays", "news", "reports"],
-    "splitSizes": { "development": 100, "calibration": 200, "test": 400 },
-    "officialMapping": { "train": "development", "dev": "calibration", "test": "test" },
+    "domains": [
+      "abstracts",
+      "essays",
+      "news",
+      "reports"
+    ],
+    "splitSizes": {
+      "development": 100,
+      "calibration": 200,
+      "test": 400
+    },
+    "officialMapping": {
+      "train": "development",
+      "dev": "calibration",
+      "test": "test"
+    },
     "heldOutGenerator": "qwen3-8b",
-    "nearDuplicateJaccard": 0.85
+    "nearDuplicateJaccard": 0.85,
+    "testSampling": "All eligible Qwen3-8B sources within official test, then deterministic hash-fill to 100 sources per domain; all variants of each selected source remain together"
   },
-  "methods": ["sentence", "sentence-context", "prefix-mean", "prefix-upper", "combined"],
+  "methods": [
+    "sentence",
+    "sentence-context",
+    "prefix-mean",
+    "prefix-upper",
+    "combined"
+  ],
   "prefixWords": 30,
   "maxPromptRevisions": 2,
-  "runtime": { "batches": [1, 4, 8], "concurrency": [1, 3, 6], "debounceMs": 50, "viewportMarginPx": 160 },
-  "gates": { "fpr": 0.05, "recall": 0.5, "ece": 0.05, "firstSentenceP95Ms": 1000, "bootstrapReplicates": 1000 },
-  "budget": { "usd": 25, "inputUsdPerMillion": 0.042, "priceVerified": "2026-09-23", "maxRequests": 10000, "maxInputTokens": 10000000 },
-  "study": { "participants": 12, "minimumComprehensionPasses": 10 },
-  "independentTransfer": { "humanDocuments": 100, "genres": ["articles", "essays", "informational"], "generators": ["gpt-5.4-nano", "qwen3-8b"] }
+  "runtime": {
+    "batches": [
+      1,
+      4,
+      8
+    ],
+    "concurrency": [
+      1,
+      3,
+      6
+    ],
+    "debounceMs": 50,
+    "viewportMarginPx": 160
+  },
+  "gates": {
+    "fpr": 0.05,
+    "recall": 0.5,
+    "ece": 0.05,
+    "firstSentenceP95Ms": 1000,
+    "bootstrapReplicates": 1000
+  },
+  "budget": {
+    "usd": 25,
+    "inputUsdPerMillion": 0.042,
+    "priceVerified": "2026-09-23",
+    "maxRequests": 10000,
+    "maxInputTokens": 10000000
+  },
+  "study": {
+    "status": "out-of-scope",
+    "reason": "User excluded workflow stage 5 (reader study) on 2026-09-23",
+    "participants": 0
+  },
+  "independentTransfer": {
+    "humanDocuments": 100,
+    "genres": [
+      "articles",
+      "essays",
+      "informational"
+    ],
+    "generators": [
+      "gpt-5.4-nano",
+      "qwen3-8b"
+    ]
+  },
+  "scopeAmendments": [
+    {
+      "date": "2026-09-23",
+      "change": "Exclude participant recruitment, reader study and participant release; retain technical detection, live latency and independent transfer evaluation.",
+      "timing": "Before scored benchmark development or held-out evaluation"
+    },
+    {
+      "date": "2026-09-23",
+      "change": "Map whitespace-only differences between released gold sentences and original text, preserving all non-whitespace characters, labels and UTF-16 offsets. Exclude every detected cross-partition exact/near duplicate before selection; retain original partitions and exclusion metadata.",
+      "timing": "Data audit only; before benchmark scoring or performance inspection"
+    },
+    {
+      "date": "2026-09-23",
+      "change": "Stratify the 400-source test selection to include all 153 eligible Qwen sources before deterministic fill. Ordinary sampling gave only 23 Qwen source clusters, making the source-count FPR confidence gate impossible even at zero errors. Keep development/calibration selections unchanged.",
+      "timing": "After four-source development feasibility, before calibration or held-out detector results; based only on source/generator metadata"
+    }
+  ]
 }

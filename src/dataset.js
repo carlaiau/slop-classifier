@@ -40,10 +40,15 @@ export function auditDataset(rows, quarantined = []) {
     const candidates = new Set(); for (const sh of set) for (const id of index.get(sh) ?? []) candidates.add(id);
     for (const id of candidates) {
       const other = sets.get(id); let intersection = 0;
+      // Jaccard cannot exceed smaller/larger size; exact pruning, not approximation.
+      if (Math.min(set.size, other.size) / Math.max(set.size, other.size) < 0.85) continue;
       for (const sh of set) if (other.has(sh)) intersection++;
       const similarity = intersection / (set.size + other.size - intersection);
       if (similarity >= 0.85) {
-        invariant(sources.get(id).split === s.split, `Near-duplicate sources cross partitions: ${id}, ${s.id}`);
+        if (sources.get(id).split !== s.split) {
+          const error = new Error(`Near-duplicate sources cross partitions`);
+          error.sourceIds = [id, s.id]; error.similarity = similarity; throw error;
+        }
         exclude.add(s.id); issues.push({ kind: 'near-duplicate', source: s.id, retained: id, similarity }); break;
       }
     }

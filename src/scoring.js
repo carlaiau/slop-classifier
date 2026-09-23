@@ -45,9 +45,11 @@ export function validateResponse(response, questions) {
   return Object.fromEntries(Object.keys(questions).map(id => [id, response.answers[id].noul]));
 }
 export function estimate(sentences, method) {
-  const requests = sentences.filter(s => !insufficient(s.text)).flatMap(s => packRequests(makeQuestions(s, method).questions));
-  const bytes = requests.reduce((n, r) => n + Buffer.byteLength(JSON.stringify(r)), 0);
-  return { sentences: sentences.length, requests: requests.length, inputTokensEstimate: Math.ceil(bytes / 3), maximumReservedTokens: requests.length * 64000, estimatedUsd: bytes / 3 * 0.042 / 1e6, maximumReservedUsd: requests.length * 64000 * 0.042 / 1e6, estimateOnly: true };
+  let requests = 0, bytes = 0;
+  for (const sentence of sentences) if (!insufficient(sentence.text)) for (const request of packRequests(makeQuestions(sentence, method).questions)) {
+    requests++; bytes += Buffer.byteLength(JSON.stringify(request));
+  }
+  return { sentences: sentences.length, requests, inputTokensEstimate: Math.ceil(bytes / 3), maximumReservedTokens: requests * 64000, estimatedUsd: bytes / 3 * 0.042 / 1e6, maximumReservedUsd: requests * 64000 * 0.042 / 1e6, estimateOnly: true };
 }
 export async function scoreSentence(sentence, { method = 'sentence', provider, calibration = null, combined = null }) {
   const scoringVersion = scoringIdentity(method, calibration, combined);

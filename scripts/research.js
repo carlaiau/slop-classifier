@@ -48,6 +48,7 @@ No test access without a freeze plus --open-test; no paid access without --execu
     await writeFile(requireOption(a, 'out'), body.join('\n')); return;
   }
   if (command === 'release') {
+    invariant((await readJson('research/protocol.json')).study.status !== 'out-of-scope', 'Participant release is excluded by the active research protocol');
     const frozen = await readJson(requireOption(a, 'freeze')), report = await readJson(requireOption(a, 'report')), latency = await readJson(requireOption(a, 'latency'));
     const parity = await readJson(requireOption(a, 'parity'));
     invariant(parity.freezeDigest === digest(frozen) && parity.split === 'test' && parity.mismatches.length === 0 && parity.records > 0, 'Exact operational segmentation parity required; mismatches need a fresh operational evaluation');
@@ -67,6 +68,7 @@ No test access without a freeze plus --open-test; no paid access without --execu
   const split = a.split ?? 'development';
   invariant(['development', 'calibration', 'test'].includes(split), 'Invalid split');
   const subset = rows.filter(r => r.split === split);
+  invariant(!subset.some(r => r.auditOnly), 'Source-audit units are not scored sentence examples');
   invariant(subset.length, `No examples for ${split}`);
   if (command === 'fit-baseline') {
     invariant(split === 'development', 'Baselines fit on development only');

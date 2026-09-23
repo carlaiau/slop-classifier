@@ -1,16 +1,16 @@
-# Frozen research protocol v1
+# Research protocol v1 — technical evaluation scope
 
 ## Questions and hypotheses
 
-The primary question is whether a JEV detector gives general readers a useful English sentence signal within a one-second p95 uncached reading interaction. Detection, system latency and reader understanding are independent outcomes. A good result on one cannot compensate for failure on another. The PDF motivates the product; it does not validate the method.
+The primary question is whether a JEV detector gives general readers a useful English sentence signal within a one-second p95 uncached reading interaction. Detection and system latency are independent technical outcomes. Reader understanding is outside the current scope, so this research cannot establish whether highlights help readers. The PDF motivates the product; it does not validate the method.
 
-H1: direct JEV sentence judgments retain useful recall at a 5% false-positive operating point. H2: prefix-word judgments or a fitted combination improve detection enough to justify added cost. H3: the viewport reader delivers the chosen method fast enough. H4: readers can inspect highlights without treating them as authorship proof.
+H1: direct JEV sentence judgments retain useful recall at a 5% false-positive operating point. H2: prefix-word judgments or a fitted combination improve detection enough to justify added cost. H3: the viewport reader delivers the chosen method fast enough. H4 (reader understanding) is excluded by the user’s scope amendment on 23 September 2026, before benchmark inference.
 
 `research/protocol.json` is the machine-readable protocol. Archive its hash with every frozen specification before test inference. This repository records a prospective protocol; it is not a claim of registration with an external registry.
 
 ## Data and leakage
 
-Pin the dataset and code revisions in the protocol. Source identity is `domain:id`, never `record_id`. Keep all versions and generators for a source together. Map official train → development (100 sources), dev → calibration (200), test → locked evaluation (400), selecting equal quotas from abstracts, essays, news and reports with a deterministic hash order. Shortfalls stay in the manifest. Qwen3-8B remains test-only. The importer retains original sentence labels and validates exact source slicing. Bad alignment quarantines the entire source across generators; retain exclusions in the report.
+Pin the dataset and code revisions in the protocol. Source identity is `domain:id`, never `record_id`. Keep all versions and generators for a source together. Map official train → development (100 sources), dev → calibration (200), test → locked evaluation (400), selecting equal quotas from abstracts, essays, news and reports with a deterministic hash order. Shortfalls stay in the manifest. Qwen3-8B remains test-only. The test sample includes all eligible Qwen sources within each domain, then fills deterministically to 100 sources per domain. This prospective metadata-only amendment replaces ordinary test sampling, which included only 23 Qwen source clusters and could not satisfy the source-count FPR interval gate. Development and calibration selections are unchanged. The importer retains original sentence labels and validates exact source slicing. Bad alignment quarantines the entire source across generators; retain exclusions in the report.
 
 Audit normalized human-source hashes, 5-word-shingle Jaccard similarity ≥0.85, author IDs where available, official split conflicts, unknown labels, malformed lists and duplicate example IDs. Cross-partition leakage is a hard failure. Within-partition duplicates retain one source. Author IDs are absent from the observed release; report that limitation. Canonicalize duplicate human v0 examples in aggregate metrics and calibration; per-generator slices retain their provenance.
 
@@ -38,6 +38,8 @@ Require FPR ≤0.05 and recall ≥0.50 for overall, held-out-generator and v4 sl
 
 Latency requires ≥100 uncached viewport observations at the chosen configuration, p95 first scored sentence ≤1,000 ms from eligibility (including debounce/network/queue/render), complete viewport records, and no unreported failures. Report cold-first requests, warm misses and cache hits separately; also record API time, queue delay, viewport completion, wasted work after scroll, requests and input cost per 1,000 words. Profile batches 1/4/8 × concurrency 1/3/6 on development text before freezing runtime. A UI cache hit never stands in for inference latency.
 
-## Pilot and stopping
+## Scope amendment and stopping
 
-Only real complete technical reports can issue a pilot release. The twelve-reader study is counterbalanced and formative. Require ≥10/12 to understand both that unhighlighted text is not verified human and that a highlight is not proof. Review every induced confident mistake before expanding. Negative and inconclusive outcomes remain publishable research results. Post-test changes require fresh evaluation sources; do not tune on the locked test and call the next run independent.
+On 23 September 2026, before benchmark inference or held-out evaluation, the user excluded the reader study entirely. Do not recruit participants, generate study assignments, run comprehension testing, or issue a participant release in this work. Existing study tooling is retained as inactive historical scaffolding. No reader-understanding or usability efficacy claim can result from the technical evaluation.
+
+Detection, real browser latency, and independent generated-text transfer remain in scope. Negative and inconclusive outcomes remain research results. Post-test changes require fresh evaluation sources; do not tune on the locked test and call the next run independent.

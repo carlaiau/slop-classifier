@@ -1,21 +1,28 @@
 # Reproducing the research
 
+Current scope: data preparation, detection comparisons, live latency, and independent transfer. Participant studies and participant release are excluded. Release commands below document the existing mechanism only; they are not part of the active workflow.
+
 Run commands from the project root. Artifacts under `data/` are ignored and may contain licensed or sensitive research text. Commit only protocols, code, metadata summaries and permitted metrics.
 
 ## 1. Fetch, import, audit
 
 ```sh
-# Lists a pinned URL and destination without downloading.
-npm run data:fetch -- --split train --domain news --generator gpt-5.4-nano
-# Add --execute to download; no inference occurs.
-npm run data:fetch -- --split train --domain news --generator gpt-5.4-nano --execute
-# Repeat for four domains and the three main generators in train/dev/test;
-# qwen3-8b is test-only. Import the full downloaded shard set together.
-python3 scripts/import_opai.py --input data/raw/default/*/*.csv --out data/imported/opai.jsonl
-npm run research -- prepare --input data/imported/opai.jsonl --audit data/imported/opai.audit.json --out data/prepared
+# Dry run lists all 40 pinned shards; --execute downloads public data, no inference.
+python3 scripts/fetch_opai.py --all
+python3 scripts/fetch_opai.py --all --execute
+# Validate every row, retain compact source units for leakage checks.
+python3 scripts/import_opai.py --input data/raw/default/*/*.csv --audit-only --out data/imported/source-audit.jsonl
+# Quarantine cross-partition duplicate sources; select 100/200/400 and expand only those.
+node --max-old-space-size=4096 scripts/prepare-corpus.js
+# Before test inference, retain all eligible held-out-generator sources within the 400-source quota.
+node scripts/stratify-heldout.js
 ```
 
-The importer checks pinned revision and SHA-256, parses lists without `eval`, aligns every sentence, converts offsets, and quarantines whole sources. Preparation checks cross-partition source, author and near-duplicate leakage; it freezes source IDs, sample sizes and data digests. Inspect source licenses and the audit before any inference. A one-shard smoke audit is not full-corpus readiness.
+Run this in a fresh data workspace; outputs are not overwritten. If sentence expansion completed but finalization was interrupted, `prepare-corpus.js --finish-existing-selection` resumes from the existing selection and verified shard metadata. Audit-only source units cannot be sent to benchmark scoring. The original single-shard import/prepare commands remain useful for fixtures, but full-corpus preparation must use the complete source audit.
+
+The importer checks pinned revision and SHA-256, parses lists without `eval`, aligns each sentence with an explicit whitespace-only mapping, and preserves released annotation text, original text and offsets. Non-whitespace mismatches quarantine whole sources. Preparation excludes all detected cross-partition duplicate sources rather than moving examples between partitions; within-partition duplicates retain one identity. Author IDs are unavailable. Review source licensing and audit exclusions before interpreting the sample as ready for a complete empirical study.
+
+The current selection and feasibility results are summarized in [the execution report](../research/first-execution-report.md). Calibration and test performance remain unopened.
 
 ## 2. Development and matched baselines
 
@@ -113,8 +120,8 @@ npm run research -- release --freeze data/jev-freeze.json --report data/jev-repo
 
 Release refuses synthetic, incomplete, failing/inconclusive detection, mismatched runtime and insufficient/failed latency samples. The operational parity check and baseline/transfer reviews must also be complete before participant use. `ENABLE_LIVE=1 RELEASE_FILE=data/pilot-release.json` opens the limited pilot only after those prerequisites. Do not expose the local server publicly.
 
-## 5. Transfer and reader study
+## 5. Independent transfer (reader study excluded)
 
 `node scripts/transfer.js --input data/transfer-human.json --out data/transfer-generation.json` validates 100 human provenance records and produces 200 topic-only generation jobs. It performs no generation. Each input has `id`, `authorId`, `genre`, `text`, `topicBrief`, and `provenance:{uri,humanEvidence,permission}`. Verify author/source independence before generating; store outputs and generation logs as a separate evaluation corpus. Provider generation costs must fit the shared study allowance.
 
-Use [reader-study.md](reader-study.md) for participant consent, task records, counterbalancing and summary commands. No participants or results are invented by scaffolding these files.
+The user excluded the reader study on 23 September 2026 before benchmark inference. Do not execute study tooling or participant release commands in this work. Existing study documentation is historical scaffolding; no reader-understanding claim is supported.

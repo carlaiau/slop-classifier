@@ -1,8 +1,16 @@
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { createReadStream } from 'node:fs';
+import { createInterface } from 'node:readline';
 
-export const digest = value => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
+export const digest = value => {
+  const hash = createHash('sha256');
+  if (Array.isArray(value)) {
+    hash.update('['); value.forEach((row, i) => { if (i) hash.update(','); hash.update(JSON.stringify(row) ?? 'null'); }); hash.update(']');
+  } else hash.update(typeof value === 'string' ? value : JSON.stringify(value));
+  return hash.digest('hex');
+};
 export const readJson = async path => JSON.parse(await readFile(path, 'utf8'));
 export async function writeJson(path, value, exclusive = false) {
   await mkdir(dirname(path), { recursive: true });
@@ -13,13 +21,19 @@ export async function writeJson(path, value, exclusive = false) {
   await rename(temp, path);
 }
 export async function readJsonl(path) {
-  return (await readFile(path, 'utf8')).split('\n').filter(Boolean).map((line, i) => {
-    try { return JSON.parse(line); } catch { throw new Error(`Invalid JSONL line ${i + 1}`); }
-  });
+  const rows = [], input = createReadStream(path, { encoding: 'utf8' });
+  const lines = createInterface({ input, crlfDelay: Infinity }); let i = 0;
+  // Forward stream errors to the iterator, including a missing file.
+  input.on('error', error => lines.close());
+  for await (const line of lines) { i++; if (!line) continue; try { rows.push(JSON.parse(line)); } catch { input.destroy(); throw new Error(`Invalid JSONL line ${i}`); } }
+  if (input.errored) throw input.errored;
+  return rows;
 }
 export async function writeJsonl(path, rows) {
   await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, rows.map(r => JSON.stringify(r)).join('\n') + '\n', { mode: 0o600 });
+  const { open } = await import('node:fs/promises'); const file = await open(path, 'w', 0o600);
+  try { for (let i=0; i<rows.length; i+=100) await file.write(rows.slice(i,i+100).map(r => JSON.stringify(r)).join('\n') + '\n'); }
+  finally { await file.close(); }
 }
 export function invariant(condition, message) { if (!condition) throw new Error(message); }
 export function seeded(seed = 23092026) {

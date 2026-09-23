@@ -1,15 +1,62 @@
 {
-  "status": "software-implemented-empirical-study-pending",
-  "paidInferencePerformed": false,
+  "status": "technical-feasibility-executed-full-evaluation-pending",
+  "date": "2026-09-23",
+  "paidInferencePerformed": true,
+  "readerStudy": "out-of-scope-by-user-instruction",
   "participantsRecruited": 0,
   "technicalGates": "not-evaluated",
-  "realDataAudit": { "scope": "one pinned dev/news/gpt-5.4-nano shard", "alignedSentenceExamples": 63342, "quarantinedSourceShards": 1, "reason": "Gold sentence fails exact source alignment", "fullCorpusAudit": "pending" },
+  "heldOutPerformanceOpened": false,
+  "realDataAudit": {
+    "shards": 40,
+    "rawVersionedRows": 281180,
+    "alignedSentenceExamples": 5427726,
+    "alignmentQuarantinesAfterWhitespaceMapping": 0,
+    "excludedSourceIds": 38,
+    "crossPartitionDuplicateSourceIds": 25,
+    "withinPartitionDuplicateExclusions": 13,
+    "selectedSources": 700,
+    "selectedSentenceExamples": 290152,
+    "splitSourceSizes": {
+      "development": 100,
+      "calibration": 200,
+      "test": 400
+    },
+    "sourceLicensingReview": "Dataset declares Apache-2.0; original-source terms and absent author IDs remain limitations",
+    "heldOutQwenSourceCount": 153,
+    "heldOutSampling": "All eligible Qwen sources then deterministic domain-quota fill; original unstratified selection retained"
+  },
+  "paidUsage": {
+    "requests": 709,
+    "inputTokens": 2844743,
+    "estimatedUsdAtVerifiedRate": 0.11947920599999932,
+    "pendingReservations": 0,
+    "ceilingUsd": 25
+  },
+  "feasibilityComparison": {
+    "sources": 4,
+    "sentences": 585,
+    "generator": "gpt-5.4-nano",
+    "result": "Weak preliminary separation; no detector validation or final method selection"
+  },
+  "liveLatency": {
+    "observations": 27,
+    "configurations": 9,
+    "complete": true,
+    "method": "uncalibrated sentence",
+    "claim": "Exploratory only; not locked >=100-observation gate"
+  },
+  "transfer": {
+    "publicCandidates": 100,
+    "verifiedHumanDocuments": 0,
+    "generatedPairs": 0
+  },
   "remainingEvidence": [
-    "Complete pinned-shard ingestion, original-source provenance review and cross-partition audit",
-    "Authorized capped JEV development, calibration and held-out inference",
-    "External detector weights/checkpoint audit and matched baseline runs",
-    "100 independent provenance-backed human texts and frozen generated counterparts",
-    "Real end-to-end runtime grid, locked operating point and technical gate report",
-    "12-person counterbalanced reader study after technical gates pass"
+    "Complete provenance and external checkpoint review",
+    "Revise execution batching and request/token allocation within US$25 before full runs; current 10M-token/10k-request caps cannot cover all methods",
+    "Full 100-source development comparison and bounded prompt experiments",
+    "Calibration and one frozen held-out evaluation, including separate Qwen and v4 slices",
+    "Locked-runtime >=100-observation latency evaluation",
+    "Review 100 public-source transfer candidates, freeze generation settings and obtain generator access",
+    "Independent generated-text transfer evaluation and technical decision report"
   ]
 }

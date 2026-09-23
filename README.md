@@ -2,7 +2,7 @@
 
 A local research harness and paste-and-scroll reader for testing JEV as a detector of AI-generated or AI-revised prose. Inspired by the reading experience in `../read-with-jev`; that project is unchanged.
 
-**This is tested research software, not a validated detector.** The default reader uses conspicuously labeled simulated scores. No paid inference or participant study has been performed. See [research/status.json](research/status.json) for the current evidence inventory.
+**This is tested research software, not a validated detector.** The default reader uses conspicuously labeled simulated scores. Paid feasibility checks have begun under the cumulative US$25 cap. The participant study is out of scope by user instruction. See the [first execution report](research/first-execution-report.md) and [evidence inventory](research/status.json).
 
 ## Start
 
@@ -25,8 +25,8 @@ No account or key is required for the simulated reader. Text is transient in the
 4. Compare direct sentence, preceding-context, prefix-word, and combined scoring against matched baselines on development only.
 5. Fit calibration and thresholds on calibration data; freeze model, scoring identity and runtime before test access.
 6. Run the locked test once, with explicit caps; evaluate clustered intervals, subgroup gates and failed/abstained cases.
-7. Profile real live latency in researcher-only mode, then create a pilot release only if all technical gates pass.
-8. Conduct the counterbalanced 12-person study using provenance-backed passages.
+7. Profile real live latency in researcher-only mode and report technical gates.
+8. Produce a technical decision report. The reader study and participant release are out of scope.
 
 [Exact commands and artifact contracts](docs/research-workflow.md) · [Scoring specification](docs/scoring.md) · [Reader study](docs/reader-study.md)
 
@@ -48,12 +48,12 @@ Copy `.env.example` to `.env` only when ready for live research. `ENABLE_LIVE=re
 
 The single local process owns an exclusive persistent budget lock. It reserves up to 64,000 input tokens before each SDK call; successful validated usage reconciles the reservation, while failures keep it charged. SDK retries are disabled. A missing/corrupt ledger, occupied lock, invalid model version, or exhausted cap stops inference. A crash leaves its lock behind; inspect pending usage with the provider before manually removing a stale lock. Do not delete the ledger to reset spending.
 
-The cap is US$25 for this study at the recorded price, not an authorization to spend. Additional providers must share the overall study allowance; their jobs are exported rather than executed by this harness. Real provider retention is separate from the app's transient storage policy. Do not claim zero provider retention from the absence of app persistence.
+The cap is US$25 for this study at the recorded price. The user authorized beginning capped research on 23 September 2026; installation and default UI use still never trigger spending. Additional providers must share the overall study allowance; their jobs are exported rather than executed by this harness. Real provider retention is separate from the app's transient storage policy. Do not claim zero provider retention from the absence of app persistence.
 
 ## Boundaries
 
 - Local prototype only: no authentication or distributed budget store, no public deployment.
 - English only. Short units abstain. Quotations and lists are reported in challenge audits rather than silently treated as human.
 - Sentence-only reader. Word-level scores remain a research feature until localization and reader-understanding evidence justify displaying them.
-- The independent transfer corpus, verified external checkpoints, paid runs and human participants still need to be supplied. Their absence is recorded, not replaced with synthetic success numbers.
+- The independent transfer corpus, external checkpoint verification, and full matched evaluations still need to be completed. Human participants are outside the current scope. Their absence is recorded, not replaced with synthetic success numbers.
 - Use `gh` from the terminal for GitHub interactions. Pinned dependency versions and lockfile are committed project inputs.
