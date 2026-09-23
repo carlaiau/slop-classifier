@@ -25,6 +25,7 @@ Provider answers must match every expected question, pinned model version, finit
 ## HTTP interface
 
 - `GET /api/config`: simulated/live mode, researcher-only status, frozen threshold, runtime, limits and scoring version.
+- `ENABLE_LIVE=explore-prefix` creates a local, researcher-only prefix-mean configuration with no calibration map. `/api/config` marks it `exploratory: true`, `validated: false` and `scoreKind: "raw-prefix-mean"`. The browser thresholds the raw aggregate and labels it accordingly. Production pilot and locked benchmark paths remain separate.
 - `POST /api/session`: transient local session in an HttpOnly, SameSite=Strict cookie.
 - `POST /api/plan {text}`: exact sentence plans and an estimate, no inference.
 - `POST /api/score {text, ids}`: reconstruct and validate 1–8 sentence targets on the server, reuse session scores, then score missing targets in a batch.

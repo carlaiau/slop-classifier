@@ -2,7 +2,7 @@
 
 A local research harness and paste-and-scroll reader for testing JEV as a detector of AI-generated or AI-revised prose. Inspired by the reading experience in `../read-with-jev`; that project is unchanged.
 
-**This is tested research software, not a validated detector.** The default reader uses conspicuously labeled simulated scores. Paid feasibility checks have begun under the cumulative US$25 cap. The participant study is out of scope by user instruction. See the [first execution report](research/first-execution-report.md) and [evidence inventory](research/status.json).
+**This is tested research software, not a validated detector.** The default reader uses conspicuously labeled simulated scores. Paid feasibility checks have begun under the cumulative US$25 cap. The participant study is out of scope by user instruction. See the [expanded development report](research/expanded-development-report.md) and [evidence inventory](research/status.json).
 
 ## Start
 
@@ -45,6 +45,8 @@ The smoke report is explicitly `synthetic-only` and cannot unlock the pilot. Bro
 ## Live access and costs
 
 Copy `.env.example` to `.env` only when ready for live research. `ENABLE_LIVE=research` requires a real frozen specification and displays **Live research · pilot not approved**. `ENABLE_LIVE=1` requires a passing pilot-release artifact. Both require a server-only key, today's `PRICE_VERIFIED_DATE`, and explicit dollar/request/token caps. Nothing in installation, tests, or the default reader initiates paid inference.
+
+For the deliberately exploratory **prefix-mean** reader, run `ENABLE_LIVE=explore-prefix PRICE_VERIFIED_DATE=YYYY-MM-DD PORT=3103 npm run dev` after verifying today's provider price. Open `http://127.0.0.1:3103`. This local mode uses live JEV word judgments, averages content-word scores for each sentence, and displays the **raw** aggregate with a draggable 0.20–0.60 cutoff (initially 0.38). It needs `TYPESAFE_API_KEY` and the existing cumulative budget caps in `.env`, but no frozen detector or participant release. The slider reuses scores and does not call JEV. The range is for inspecting behavior, not a validated detection threshold; changing it cannot improve score ranking. The model sees only sentences scheduled near the viewport. Session text and score cache are transient; the provider's own handling is separate.
 
 The single local process owns an exclusive persistent budget lock. It reserves up to 64,000 input tokens before each SDK call; successful validated usage reconciles the reservation, while failures keep it charged. SDK retries are disabled. A missing/corrupt ledger, occupied lock, invalid model version, or exhausted cap stops inference. A crash leaves its lock behind; inspect pending usage with the provider before manually removing a stale lock. Do not delete the ledger to reset spending.
 

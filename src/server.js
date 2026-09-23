@@ -16,7 +16,7 @@ async function body(req) {
 }
 function validateText(text) { invariant(typeof text === 'string' && text.trim() && text.length <= MAX_CHARS, `Paste between 1 and ${MAX_CHARS.toLocaleString()} characters`); }
 
-export function buildServer({ release = null, provider = null, clock = Date.now, researchOnly = false } = {}) {
+export function buildServer({ release = null, provider = null, clock = Date.now, researchOnly = false, exploratory = false } = {}) {
   const sessions = new Map(), rate = new Map(); let active = 0, requestSequence = 0;
   const live = Boolean(release && provider), method = release?.method ?? 'sentence';
   const identity = live ? release.scoringVersion : 'simulated-ui-v1';
@@ -30,7 +30,10 @@ export function buildServer({ release = null, provider = null, clock = Date.now,
       if (req.headers.host !== expectedHost && req.headers.host !== `localhost:${server.address().port}`) return send(403, { error: 'Local access only' });
       const path = new URL(req.url, `http://${expectedHost}`).pathname;
       if (req.method === 'GET' && assets[path]) { const [file, type] = assets[path]; res.writeHead(200, { 'Content-Type': type }); res.end(await readFile(new URL(`../${file}`, import.meta.url))); return; }
-      if (req.method === 'GET' && path === '/api/config') return send(200, { mode: live ? 'live' : 'demo', researchOnly, maxChars: MAX_CHARS, scoringVersion: identity, threshold: release?.threshold ?? 0.65, runtime, validated: live && !researchOnly, sessionMinutes: 30 });
+      if (req.method === 'GET' && path === '/api/config') return send(200, { mode: live ? 'live' : 'demo', researchOnly, exploratory, method,
+        scoreKind: exploratory ? 'raw-prefix-mean' : live ? 'calibrated' : 'simulated',
+        maxChars: MAX_CHARS, scoringVersion: identity, threshold: release?.threshold ?? 0.65, runtime,
+        validated: live && !researchOnly && !exploratory, sessionMinutes: 30 });
       if (req.method !== 'POST') return send(404, { error: 'Not found' });
       if (req.headers.origin !== `http://${req.headers.host}` || !req.headers['content-type']?.startsWith('application/json')) return send(403, { error: 'Same-origin JSON request required' });
       const now = clock(), ip = req.socket.remoteAddress;
@@ -89,12 +92,18 @@ export function buildServer({ release = null, provider = null, clock = Date.now,
 }
 export async function start() {
   let budget, release = null, provider = null;
-  const researchOnly = process.env.ENABLE_LIVE === 'research';
+  const exploratory = process.env.ENABLE_LIVE === 'explore-prefix';
+  const researchOnly = process.env.ENABLE_LIVE === 'research' || exploratory;
   if (process.env.ENABLE_LIVE === '1' || researchOnly) {
-    release = await readJson(process.env.RELEASE_FILE ?? '');
-    invariant(!release.synthetic && (researchOnly ? release.kind === 'locked-specification' : release.kind === 'pilot-release' && release.technicalGates === 'pass'), 'A real frozen specification (research) or passing pilot release is required');
-    invariant(['sentence', 'sentence-context'].includes(release.method) && release.scoringVersion === scoringIdentity(release.method, release.calibration), 'Release scoring identity mismatch');
-    if (researchOnly) {
+    if (exploratory) {
+      release = { kind: 'local-exploration', method: 'prefix-mean', calibration: null,
+        threshold: 0.38, scoringVersion: scoringIdentity('prefix-mean'), runtime: { batch: 4, concurrency: 3 }, synthetic: false };
+    } else {
+      release = await readJson(process.env.RELEASE_FILE ?? '');
+      invariant(!release.synthetic && (researchOnly ? release.kind === 'locked-specification' : release.kind === 'pilot-release' && release.technicalGates === 'pass'), 'A real frozen specification (research) or passing pilot release is required');
+      invariant(['sentence', 'sentence-context'].includes(release.method) && release.scoringVersion === scoringIdentity(release.method, release.calibration), 'Release scoring identity mismatch');
+    }
+    if (researchOnly && !exploratory) {
       const batch = Number(process.env.RESEARCH_BATCH ?? release.runtime.batch), concurrency = Number(process.env.RESEARCH_CONCURRENCY ?? release.runtime.concurrency);
       invariant([1, 4, 8].includes(batch) && [1, 3, 6].includes(concurrency), 'Unsupported profiling configuration');
       release = { ...release, runtime: { batch, concurrency } };
@@ -103,8 +112,8 @@ export async function start() {
     budget = await openBudget('data/budget.json', { usd: Number(process.env.BUDGET_USD), requests: Number(process.env.MAX_REQUESTS), tokens: Number(process.env.MAX_INPUT_TOKENS) });
     try { provider = await createProvider(budget); } catch (e) { await budget.close(); throw e; }
   }
-  const server = buildServer({ release, provider, researchOnly }), port = Number(process.env.PORT ?? 3102);
-  server.listen(port, '127.0.0.1', () => console.log(`Reader: http://127.0.0.1:${server.address().port} (${release ? 'live pilot' : 'simulated scores; no inference'})`));
+  const server = buildServer({ release, provider, researchOnly, exploratory }), port = Number(process.env.PORT ?? 3102);
+  server.listen(port, '127.0.0.1', () => console.log(`Reader: http://127.0.0.1:${server.address().port} (${exploratory ? 'experimental live prefix-mean' : release ? researchOnly ? 'live research' : 'live pilot' : 'simulated scores; no inference'})`));
   const close = () => server.close(async () => { await budget?.close(); process.exit(0); });
   process.on('SIGINT', close); process.on('SIGTERM', close);
   server.on('error', async error => { console.error(error.message); await budget?.close(); process.exitCode = 1; });

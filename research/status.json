@@ -5,6 +5,7 @@
   "readerStudy": "out-of-scope-by-user-instruction",
   "participantsRecruited": 0,
   "technicalGates": "not-evaluated",
+  "readerPrototype": "Local live prefix-mean exploration with raw-score slider; unvalidated, no participant release",
   "heldOutPerformanceOpened": false,
   "realDataAudit": {
     "shards": 40,
@@ -26,9 +27,9 @@
     "heldOutSampling": "All eligible Qwen sources then deterministic domain-quota fill; original unstratified selection retained"
   },
   "paidUsage": {
-    "requests": 709,
-    "inputTokens": 2844743,
-    "estimatedUsdAtVerifiedRate": 0.11947920599999932,
+    "requests": 1956,
+    "inputTokens": 8192138,
+    "estimatedUsdAtVerifiedRate": 0.3440697960000015,
     "pendingReservations": 0,
     "ceilingUsd": 25
   },
@@ -52,11 +53,25 @@
   },
   "remainingEvidence": [
     "Complete provenance and external checkpoint review",
-    "Revise execution batching and request/token allocation within US$25 before full runs; current 10M-token/10k-request caps cannot cover all methods",
+    "Plan full-source batching and request/token allocation within US$25; current 10M-token cap has 1807862 tokens left",
     "Full 100-source development comparison and bounded prompt experiments",
     "Calibration and one frozen held-out evaluation, including separate Qwen and v4 slices",
     "Locked-runtime >=100-observation latency evaluation",
     "Review 100 public-source transfer candidates, freeze generation settings and obtain generator access",
     "Independent generated-text transfer evaluation and technical decision report"
-  ]
+  ],
+  "expandedDevelopment": {
+    "sources": 12,
+    "sentences": 3438,
+    "generator": "gpt-5.4-nano",
+    "methods": [
+      "sentence",
+      "sentence-context",
+      "prefix-mean",
+      "prefix-upper-derived"
+    ],
+    "combinedExcluded": true,
+    "result": "Development-only grouped thresholds show low AI-edited recall; no method or official calibration frozen",
+    "report": "research/expanded-development-report.md"
+  }
 }

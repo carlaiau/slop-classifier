@@ -9,7 +9,7 @@ Not everything could be fixed. A cracked kettle went home in the same bag it had
 
 By noon, the room had become noticeably quieter. The last visitors folded the tables, gathered stray screws into a jar, and returned the chairs to their usual places. Mara switched on her lamp once more before packing it away.
 
-This sample passage was written for a software demonstration. Its highlights are simulated and carry no evidence about how any sentence was produced.`;
+This sample passage was written for a software demonstration. Any highlights are model signals for inspection, not evidence about how a sentence was produced.`;
 let config, text = '', sentences = [], results = new Map(), nodes = new Map(), mapNodes = new Map(), nearby = new Set();
 let observer, generation = 0, active = 0, paused = false, timer, controllers = new Set(), prepared = null;
 let eligible = new Map(), observations = [], viewport = null, requestCount = 0, detailId = null;
@@ -17,7 +17,7 @@ const request = async (path, data, signal) => {
   const response = await fetch(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data ?? {}), signal });
   const body = await response.json(); if (!response.ok) throw new Error(body.error ?? 'Request failed'); return body;
 };
-const scoreOf = r => config.mode === 'demo' ? r?.displayScore : r?.calibrated;
+const scoreOf = r => config.mode === 'demo' ? r?.displayScore : config.scoreKind === 'raw-prefix-mean' ? r?.raw : r?.calibrated;
 function update(id) {
   const r = results.get(id), status = r?.status ?? 'unscored', score = scoreOf(r);
   const marked = status === 'scored' && Number.isFinite(score) && score >= Number($('threshold').value);
@@ -35,6 +35,7 @@ function detail(id) {
   else if (r.status === 'failed') info += 'Analysis failed. Use Retry visible sentences.';
   else if (r.status === 'insufficient') info += r.reason;
   else if (config.mode === 'demo') info += `Simulated signal ${scoreOf(r).toFixed(2)}. This value is generated for the interface, not by a detector.`;
+  else if (config.scoreKind === 'raw-prefix-mean') info += `Experimental prefix-mean ${r.raw.toFixed(2)}, averaging ${r.words?.length ?? 0} content-word judgments. This is a local model signal, not a calibrated authorship probability or a word-level explanation.`;
   else info += `Model signal ${r.calibrated.toFixed(2)}; raw ${r.raw.toFixed(2)}. Calibrated on the frozen research sample, not a universal authorship probability.`;
   $('detail-text').textContent = info;
   $('mobile-detail-text').textContent = info;
@@ -139,7 +140,7 @@ $('prepare').addEventListener('click', async () => {
     const plan = await request('/api/plan', { text: candidate });
     if ($('paste').value !== candidate) return;
     prepared = { text: candidate, sentences: plan.sentences };
-    $('estimate').textContent = `${plan.sentences.length} sentences. ${config.mode === 'demo' ? 'Simulated analysis is free.' : `Up to ${plan.estimate.requests} individual-sentence requests before batching; estimated $${plan.estimate.estimatedUsd.toFixed(4)} for the full text.`}`;
+    $('estimate').textContent = `${plan.sentences.length} sentences. ${config.mode === 'demo' ? 'Simulated analysis is free.' : `Rough full-text estimate: ${plan.estimate.requests} sentence request packets before batching, $${plan.estimate.estimatedUsd.toFixed(4)}. Only nearby sentences are analyzed.`}`;
     $('begin').hidden = false; $('begin').focus();
   } catch (error) { $('ingest-error').textContent = error.message; } finally { $('prepare').disabled = false; }
 });
@@ -175,15 +176,24 @@ $('drawer').addEventListener('close', () => { if (drawerAnchor && drawerSource) 
 try {
   config = await (await fetch('/api/config')).json();
   $('mode').textContent = config.mode === 'demo' ? 'Simulated scores · no model calls' : 'Validated technical setup · limited pilot';
+  if (config.scoreKind === 'raw-prefix-mean') {
+    $('threshold-label').textContent = 'Raw prefix-mean cutoff';
+    $('threshold').min = '0.20'; $('threshold').max = '0.60'; $('threshold').step = '0.01';
+  }
   $('threshold').value = String(Math.min(1, config.threshold)); $('threshold-value').textContent = Number($('threshold').value).toFixed(2);
   if (config.mode === 'live') {
     $('threshold-note').textContent = 'Default calibrated on the frozen research sample. Other settings change false-positive and miss rates.';
     $('privacy').textContent = 'Visible sentences and their context go through this local server to TypeSafe. Application caches are session-only and expire after 30 minutes. The provider has separate retention terms; do not paste confidential text without checking them.';
     $('reading-banner').textContent = 'AI-typicality signals support inspection. They do not prove authorship.';
     $('research-status').textContent = 'Technical gates passed for this frozen setup. Reader understanding is still being studied.';
-    if (config.researchOnly) {
+    if (config.exploratory) {
+      $('mode').textContent = 'Experimental prefix-mean · live JEV';
+      $('research-status').textContent = 'Local exploration only. Detection has not passed technical gates. The reader study is outside this project.';
+      $('threshold-note').textContent = 'Raw word-average signal. Around 0.38 flagged 5% of human-labeled sentences in a small development sample. This is not a validated default. Dragging changes highlights without API calls.';
+      $('reading-banner').textContent = 'Experimental prefix-mean scores. Word judgments are averaged per sentence; highlights are not proof of authorship.';
+    } else if (config.researchOnly) {
       $('mode').textContent = 'Live research · pilot not approved';
-      $('research-status').textContent = 'Research instrumentation only. Technical gates and reader study are not complete.';
+      $('research-status').textContent = 'Research instrumentation only. Technical gates are not complete; the reader study is outside this project.';
       $('threshold-note').textContent = 'Research calibration setting. Not a validated default. Other settings change false-positive and miss rates.';
       $('reading-banner').textContent = 'Experimental JEV scores. This session measures the system; it is not a validated detector or participant pilot.';
     }

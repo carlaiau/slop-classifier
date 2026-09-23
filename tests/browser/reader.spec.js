@@ -54,3 +54,33 @@ test('failure is explicit and retry affects only nearby failures', async ({ page
   await expect(page.locator('#analysis-error')).toContainText('Controlled test failure');
   fail = false; await page.getByRole('button', { name: 'Retry visible sentences' }).click(); await expect(page.locator('.sentence[data-status=scored]').first()).toBeVisible();
 });
+test('experimental prefix slider changes highlights without another score request', async ({ page }) => {
+  let calls = 0;
+  await page.route('**/api/config', route => route.fulfill({ contentType: 'application/json', body: JSON.stringify({
+    mode: 'live', researchOnly: true, exploratory: true, method: 'prefix-mean', scoreKind: 'raw-prefix-mean',
+    scoringVersion: 'prefix-ui-test', threshold: 0.38, runtime: { batch: 4, concurrency: 3 }, validated: false
+  }) }));
+  await page.route('**/api/score', async route => {
+    calls++;
+    const { ids } = route.request().postDataJSON();
+    await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ mode: 'live', apiMs: 10,
+      results: ids.map(id => ({ id, status: 'scored', raw: 0.36, calibrated: null, words: [{ start: 0, end: 4, raw: 0.36 }], cached: false })) }) });
+  });
+  await page.goto('/');
+  await expect(page.locator('#mode')).toContainText('Experimental prefix-mean');
+  await page.getByRole('button', { name: 'Try a sample passage' }).click();
+  await page.getByRole('button', { name: 'Prepare reading' }).click();
+  await page.getByRole('button', { name: 'Start reading', exact: true }).click();
+  const first = page.locator('.sentence[data-status=scored]').first(); await expect(first).toBeVisible();
+  await expect(first).toHaveAttribute('data-marked', 'false');
+  await page.waitForTimeout(250); const before = calls;
+  const slider = page.getByRole('slider', { name: 'Raw prefix-mean cutoff' });
+  await slider.focus(); await page.keyboard.press('Home');
+  await expect(page.locator('#threshold-value')).toHaveText('0.20');
+  await expect(first).toHaveAttribute('data-marked', 'true');
+  await page.keyboard.press('End');
+  await expect(page.locator('#threshold-value')).toHaveText('0.60');
+  await expect(first).toHaveAttribute('data-marked', 'false');
+  await page.waitForTimeout(150); expect(calls).toBe(before);
+  await first.focus(); await expect(page.locator('#detail-text')).toContainText('Experimental prefix-mean');
+});

@@ -8,7 +8,7 @@
     <aside id="settings" class="settings" aria-label="Reading settings">
       <div class="aside-heading"><h2>Reading lens</h2><button id="new-text" class="text-button" hidden>New text</button></div>
       <p class="intro-note">Inspect the writing.<br>Keep the uncertainty in view.</p>
-      <label class="control-label" for="threshold">Highlight threshold</label>
+      <label id="threshold-label" class="control-label" for="threshold">Highlight threshold</label>
       <div class="range-ends"><span>More highlights</span><span>Fewer</span></div>
       <input id="threshold" type="range" min="0" max="1" step="0.01" value="0.65" disabled>
       <div class="range-readout"><output id="threshold-value" for="threshold">0.65</output><button id="reset" class="text-button">Reset</button></div>
@@ -16,7 +16,7 @@
       <hr>
       <h3>How to read this</h3>
       <p class="small">A tint marks a model signal, not proof of authorship. Unhighlighted text is not verified human.</p>
-      <p class="small">Hover or focus a sentence to inspect its status. Moving the threshold reuses existing scores.</p>
+      <p class="small">Hover or focus a sentence to inspect its status. Dragging the threshold reuses existing scores and makes no API calls.</p>
       <dl class="legend"><div><dt><i class="swatch marked"></i>Above threshold</dt><dd>Inspect in context</dd></div><div><dt><i class="swatch unscored"></i>Not analyzed</dt><dd>Scroll to read</dd></div><div><dt><i class="swatch insufficient"></i>Insufficient information</dt><dd>Too little text</dd></div></dl>
       <div class="research-note"><h3>Research status</h3><p id="research-status" class="small">Software prototype. Detection and reader-study results are pending.</p><button id="export" class="text-button" hidden>Export session timings</button></div>
     </aside>
